@@ -40,5 +40,13 @@
                                📡 Следующий шап — подключить прокси к ИИ.</p>`;
         }
     </script>
+    <button id="installButton" style="display:none; padding:12px; background:#4CAF50; color:white; border:none; border-radius:8px; margin:20px auto;">📱 Установить</button>
+<script>
+let deferredPrompt;
+const b=document.getElementById('installButton');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;b.style.display='block';});
+b.addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt=null;b.style.display='none';});
+window.addEventListener('appinstalled',()=>{b.style.display='none';deferredPrompt=null;});
+</script>
 </body>
 </html>
