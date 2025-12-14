@@ -40,13 +40,40 @@
                                📡 Следующий шап — подключить прокси к ИИ.</p>`;
         }
     </script>
-    <button id="installButton" style="display:none; padding:12px; background:#4CAF50; color:white; border:none; border-radius:8px; margin:20px auto;">📱 Установить</button>
+    <button id="installButton" style="display: none; padding: 12px 24px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; margin: 20px auto; cursor: pointer; display: block;">
+    📱 Установить приложение
+</button>
+
 <script>
-let deferredPrompt;
-const b=document.getElementById('installButton');
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;b.style.display='block';});
-b.addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt=null;b.style.display='none';});
-window.addEventListener('appinstalled',()=>{b.style.display='none';deferredPrompt=null;});
+if ('BeforeInstallPromptEvent' in window) {
+    let deferredPrompt;
+    const installButton = document.getElementById('installButton');
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installButton.style.display = 'block';
+        console.log('PWA можно установить, кнопка показана');
+    });
+    
+    installButton.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`Пользователь выбрал: ${outcome}`);
+        deferredPrompt = null;
+        installButton.style.display = 'none';
+    });
+    
+    window.addEventListener('appinstalled', () => {
+        console.log('PWA установлено');
+        installButton.style.display = 'none';
+        deferredPrompt = null;
+    });
+} else {
+    console.log('Браузер не поддерживает установку PWA');
+    document.getElementById('installButton').style.display = 'none';
+}
 </script>
 </body>
 </html>
