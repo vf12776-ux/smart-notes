@@ -31,15 +31,53 @@
         </div>
         <div class="output" id="output">Здесь появится результат работы ИИ.</div>
     </div>
-
     <script>
-        function showResult(type) {
-            const output = document.getElementById('output');
-            output.innerHTML = `<p><strong>Запрос на "${type}" отправлен.</strong></p>
-                               <p style="margin-top: 10px; color: #007aff;">✅ Базовая логика PWA работает.<br>
-                               📡 Следующий шап — подключить прокси к ИИ.</p>`;
+        async function showResult(action) {
+    const text = document.querySelector('textarea').value.trim();
+    const output = document.getElementById('output');
+    
+    if (!text) {
+        output.innerHTML = '<p style="color: #ff3b30;">Введите текст.</p>';
+        return;
+    }
+    
+    output.innerHTML = '<p>⌛ ИИ обрабатывает...</p>';
+    
+    try {
+        // URL твоего прокси на Vercel
+        const PROXY_URL = 'https://gemini-proxy-7ydu5964i-vf12776-uxs-projects.vercel.app/api/proxy';
+        
+        const response = await fetch(PROXY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: `${getPromptByAction(action)}: ${text}`
+            }),
+        });
+        
+        const data = await response.json();
+        
+        if (data.response) {
+            output.innerHTML = `<p><strong>Результат:</strong></p><p>${data.response}</p>`;
+        } else if (data.error) {
+            output.innerHTML = `<p style="color: #ff3b30;">Ошибка: ${data.error}</p>`;
+        } else {
+            output.innerHTML = `<p style="color: #ff3b30;">Странный ответ: ${JSON.stringify(data)}</p>`;
         }
-    </script>
+    } catch (error) {
+        output.innerHTML = `<p style="color: #ff3b30;">Сеть: ${error.message}</p>`;
+    }
+}
+
+function getPromptByAction(action) {
+    const prompts = {
+        'конспект': 'Сделай чёткий конспект',
+        'улучшить': 'Улучши стиль и грамотность',
+        'идеи': 'Предложи 5 идей'
+    };
+    return prompts[action] || 'Обработай';
+}
+        </script>
     <button id="installButton" style="display: none; padding: 12px 24px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; margin: 20px auto; cursor: pointer; display: block;">
     📱 Установить приложение
 </button>
